@@ -1,6 +1,8 @@
 <!-- eslint-disable no-debugger -->
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
+import type { FormInstance } from 'ant-design-vue'
+import type { Rule } from 'ant-design-vue/es/form'
 
 const props = defineProps({
   visible: {
@@ -26,14 +28,14 @@ const onClose = () => {
 }
 
 const onOk = () => {
-  emit('onOk', modalFormState.data)
+  onFinish()
 }
 
 let modalFormState = reactive({
   data: {
     id: undefined,
     name: '',
-    age: 0,
+    age: undefined,
     address: ''
   }
 })
@@ -44,6 +46,27 @@ watch(
     modalFormState.data = newVal
   }
 )
+
+const formRef = ref<FormInstance>()
+const onFinish = async () => {
+  const values = await formRef.value?.validateFields()
+  emit('onOk', { ...modalFormState.data, ...values })
+}
+
+let checkAge = async (_rule: Rule, value: number) => {
+  if (!value) {
+    return Promise.reject('Please input the age')
+  }
+  if (!Number.isInteger(value)) {
+    return Promise.reject('Please input digits')
+  } else {
+    if (value < 18) {
+      return Promise.reject('Age must be greater than 18')
+    } else {
+      return Promise.resolve()
+    }
+  }
+}
 </script>
 
 <template>
@@ -56,11 +79,13 @@ watch(
     @cancel="onClose"
   >
     <a-form
-      :model="modalFormState"
+      ref="formRef"
+      :model="modalFormState.data"
       name="basic"
       :label-col="{ span: 4 }"
       :wrapper-col="{ span: 20 }"
       autocomplete="off"
+      @finish="onFinish"
     >
       <a-form-item
         label="Name"
@@ -73,7 +98,7 @@ watch(
       <a-form-item
         label="Age"
         name="age"
-        :rules="[{ required: true, message: 'Please input your age!' }]"
+        :rules="[{ required: true, validator: checkAge, trigger: 'change' }]"
       >
         <a-input-number v-model:value="modalFormState.data.age" />
       </a-form-item>

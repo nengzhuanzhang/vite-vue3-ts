@@ -53,7 +53,7 @@ const onClosed = () => {
 }
 
 // 新增、编辑
-const onOk = formState => {
+const onOk = (formState: any) => {
   if (formState.id) {
     axios.put(`${httpUrl}/user/edit`, { ...formState }).then(res => {
       if (res.data.status === 200) {
@@ -86,7 +86,7 @@ const onDelete = (id: number) => {
     okText: 'Confirm',
     cancelText: 'Cancel',
     onOk: () => {
-      axios.delete(`${httpUrl}/user/add/user/delete/${id}`).then(res => {
+      axios.delete(`${httpUrl}/user/delete/${id}`).then(res => {
         if (res.data.status === 200) {
           message.info('delete success!')
           queryDataList()
