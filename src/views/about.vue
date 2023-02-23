@@ -1,17 +1,10 @@
 <!-- eslint-disable no-debugger -->
 <script setup lang="ts">
-import {
-  SmileOutlined,
-  DownOutlined,
-  PlusOutlined,
-  ExclamationCircleOutlined
-} from '@ant-design/icons-vue'
-import axios from 'axios'
+import { SmileOutlined, PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { createVNode, reactive, ref } from 'vue'
 import tableEdit from '../components/TableEdit.vue'
 import { message, Modal } from 'ant-design-vue'
-
-const httpUrl = import.meta.env.VITE_HTTP
+import { addUser, deleteUser, editUser, queryUserList } from '../api/user'
 
 const columns = [
   {
@@ -37,8 +30,8 @@ const columns = [
 
 const dataSource = ref()
 const queryDataList = () => {
-  axios.get(`${httpUrl}/user`).then(res => {
-    dataSource.value = res.data
+  queryUserList().then(res => {
+    dataSource.value = res
   })
 }
 queryDataList()
@@ -55,8 +48,8 @@ const onClosed = () => {
 // 新增、编辑
 const onOk = (formState: any) => {
   if (formState.id) {
-    axios.put(`${httpUrl}/user/edit`, { ...formState }).then(res => {
-      if (res.data.status === 200) {
+    editUser({ ...formState }).then(res => {
+      if (res.status === 200) {
         message.info('edit success!')
         onClosed()
         queryDataList()
@@ -65,8 +58,8 @@ const onOk = (formState: any) => {
       }
     })
   } else {
-    axios.post(`${httpUrl}/user/add`, { ...formState }).then(res => {
-      if (res.data.status === 200) {
+    addUser({ ...formState }).then(res => {
+      if (res.status === 200) {
         message.info('add success!')
         onClosed()
         queryDataList()
@@ -86,8 +79,8 @@ const onDelete = (id: number) => {
     okText: 'Confirm',
     cancelText: 'Cancel',
     onOk: () => {
-      axios.delete(`${httpUrl}/user/delete/${id}`).then(res => {
-        if (res.data.status === 200) {
+      deleteUser(id).then(res => {
+        if (res.status === 200) {
           message.info('delete success!')
           queryDataList()
         } else {

@@ -1,9 +1,8 @@
 <!-- eslint-disable no-debugger -->
 <script setup lang="ts">
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons-vue'
-import { ref, getCurrentInstance, computed } from 'vue'
+import { ref, computed } from 'vue'
 import router from '../router/index'
-// const { ctx } = getCurrentInstance()
 
 const selectedKeys = ref<string[]>(['1'])
 const collapsed = ref<boolean>(false)
